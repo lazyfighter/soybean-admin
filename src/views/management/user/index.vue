@@ -33,12 +33,12 @@ import { reactive, ref } from 'vue';
 import type { Ref } from 'vue';
 import { NButton, NPopconfirm, NSpace, NTag } from 'naive-ui';
 import type { DataTableColumns, PaginationProps } from 'naive-ui';
+import { genderLabels, userStatusLabels } from '@/constants';
 import { fetchUserList } from '@/service';
 import { useBoolean, useLoading } from '@/hooks';
-import { genderLabels, userStatusLabels } from '@/constants';
-import TableActionModal from './components/TableActionModal.vue';
-import type { ModalType } from './components/TableActionModal.vue';
-import ColumnSetting from './components/ColumnSetting.vue';
+import TableActionModal from './components/table-action-modal.vue';
+import type { ModalType } from './components/table-action-modal.vue';
+import ColumnSetting from './components/column-setting.vue';
 
 const { loading, startLoading, endLoading } = useLoading(false);
 const { bool: visible, setTrue: openModal } = useBoolean();
