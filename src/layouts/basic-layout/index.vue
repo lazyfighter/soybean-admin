@@ -15,6 +15,7 @@
     :sider-collapsed-width="siderCollapsedWidth"
     :footer-visible="theme.footer.visible"
     :fixed-footer="theme.footer.fixed"
+    :right-footer="theme.footer.right"
   >
     <template #header>
       <global-header v-bind="headerProps" />
@@ -30,7 +31,7 @@
       <global-footer />
     </template>
   </admin-layout>
-  <global-back-top />
+  <n-back-top :key="theme.scrollMode" :listen-to="`#${app.scrollElId}`" class="z-100" />
   <setting-drawer />
 </template>
 
@@ -38,15 +39,7 @@
 import { AdminLayout } from '@soybeanjs/vue-materials';
 import { useAppStore, useThemeStore } from '@/store';
 import { useBasicLayout } from '@/composables';
-import {
-  GlobalBackTop,
-  GlobalContent,
-  GlobalFooter,
-  GlobalHeader,
-  GlobalSider,
-  GlobalTab,
-  SettingDrawer
-} from '../common';
+import { GlobalContent, GlobalFooter, GlobalHeader, GlobalSider, GlobalTab, SettingDrawer } from '../common';
 
 defineOptions({ name: 'BasicLayout' });
 
@@ -56,4 +49,12 @@ const theme = useThemeStore();
 const { mode, headerProps, siderVisible, siderWidth, siderCollapsedWidth } = useBasicLayout();
 </script>
 
-<style scoped></style>
+<style lang="scss">
+#__SCROLL_EL_ID__ {
+  @include scrollbar(8px, #e1e1e1);
+}
+
+.dark #__SCROLL_EL_ID__ {
+  @include scrollbar(8px, #555);
+}
+</style>
