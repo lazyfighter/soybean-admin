@@ -90,6 +90,8 @@ declare namespace Theme {
     darkMode: boolean;
     /** 是否自动跟随系统主题 */
     followSystemTheme: boolean;
+    /** 自定义暗黑动画过渡 */
+    isCustomizeDarkModeTransition: boolean;
     /** 布局样式 */
     layout: Layout;
     /** 滚动模式 */
@@ -242,16 +244,19 @@ declare namespace App {
     routePath: string;
     icon?: () => import('vue').VNodeChild;
     children?: GlobalMenuOption[];
+    i18nTitle?: string;
   };
 
   /** 面包屑 */
-  type GlobalBreadcrumb = import('naive-ui').DropdownOption & {
+  type GlobalBreadcrumb = Omit<import('naive-ui').DropdownOption, 'icon'> & {
     key: string;
     label: string;
     disabled: boolean;
     routeName: string;
     hasChildren: boolean;
-    children?: GlobalBreadcrumb[];
+    icon?: import('vue').Component;
+    i18nTitle?: string;
+    options?: (import('naive-ui/es/dropdown/src/interface').DropdownMixedOption & { i18nTitle?: string })[];
   };
 
   /** 多页签Tab的路由 */
@@ -299,19 +304,85 @@ declare namespace App {
 }
 
 declare namespace I18nType {
+  type langType = 'en' | 'zh-CN' | 'km-KH';
+
   interface Schema {
     system: {
       title: string;
     };
     routes: {
       dashboard: {
-        dashboard: string;
+        _value: string;
         analysis: string;
         workbench: string;
       };
-      about: {
-        about: string;
+      document: {
+        _value: string;
+        vue: string;
+        vite: string;
+        naive: string;
+        project: string;
+        'project-link': string;
       };
+      component: {
+        _value: string;
+        button: string;
+        card: string;
+        table: string;
+      };
+      plugin: {
+        _value: string;
+        charts: {
+          _value: string;
+          antv: string;
+          echarts: string;
+        };
+        copy: string;
+        editor: {
+          _value: string;
+          markdown: string;
+          quill: string;
+        };
+        icon: string;
+        map: string;
+        print: string;
+        swiper: string;
+        video: string;
+      };
+      'auth-demo': {
+        _value: string;
+        permission: string;
+        super: string;
+      };
+      function: {
+        _value: string;
+        tab: string;
+      };
+      exception: {
+        _value: string;
+        403: string;
+        404: string;
+        500: string;
+      };
+      'multi-menu': {
+        _value: string;
+        first: {
+          _value: string;
+          second: string;
+          'second-new': {
+            _value: string;
+            third: string;
+          };
+        };
+      };
+      management: {
+        _value: string;
+        auth: string;
+        role: string;
+        route: string;
+        user: string;
+      };
+      about: string;
     };
   }
 }

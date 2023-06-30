@@ -59,8 +59,15 @@ interface ImportMetaEnv {
   readonly VITE_COMPRESS_TYPE?: 'gzip' | 'brotliCompress' | 'deflate' | 'deflateRaw';
   /** 是否应用pwa */
   readonly VITE_PWA?: 'Y' | 'N';
+  /**
+   * 是否开启生产模式下的mock
+   * @description 生产模式下会拦截XHR，导致无法获取response，不使用mock请求时设置为N
+   */
+  readonly VITE_PROD_MOCK?: 'Y' | 'N';
   /** hash路由模式 */
   readonly VITE_HASH_ROUTE?: 'Y' | 'N';
+  /** 是否应用自动生成路由的插件 */
+  readonly VITE_SOYBEAN_ROUTE_PLUGIN?: 'Y' | 'N';
   /** 是否是部署的vercel */
   readonly VITE_VERCEL?: 'Y' | 'N';
 }

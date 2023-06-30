@@ -1,9 +1,41 @@
 import { ref, reactive } from 'vue';
 import type { Ref } from 'vue';
 import type { DataTableBaseColumn, DataTableSelectionColumn, DataTableExpandColumn, PaginationProps } from 'naive-ui';
-import type { MaybeComputedRef } from '@vueuse/core';
 import type { TableColumnGroup, InternalRowData } from 'naive-ui/es/data-table/src/interface';
 import { useLoadingEmpty } from '../common';
+
+/**
+ * 表格分页参数
+ */
+type PaginationParams = Pick<PaginationProps, 'page' | 'pageSize'>;
+
+/**
+ * 表格请求接口的参数
+ */
+type ApiParams<TableData> = Record<string, unknown> & PaginationParams & Partial<TableData>;
+
+/**
+ * 表格请求接口的结果
+ * @description 这里用属性list来表示后端接口返回的表格数据
+ */
+type ApiData<TableData = Record<string, unknown>> = Record<string, unknown> & { list: TableData[] };
+
+/**
+ * 表格接口的请求函数
+ */
+type ApiFn<TableData = Record<string, unknown>, Params = ApiParams<TableData>> = (
+  params: Params
+) => Promise<Service.RequestResult<ApiData<TableData>>>;
+
+/**
+ * 表格接口请求后转换后的数据
+ */
+type TransformedTableData<TableData = Record<string, unknown>> = {
+  data: TableData[];
+  pageNum: number;
+  pageSize: number;
+  total: number;
+};
 
 /**
  * 表格的列
@@ -15,56 +47,36 @@ type DataTableColumn<T = InternalRowData> =
   | DataTableExpandColumn<T>;
 
 /**
- * 表格分页参数
+ * 表格数据转换器
+ * @description 将不同接口的表格数据转换成统一的类型
  */
-type TablePaginationParams = Pick<PaginationProps, 'page' | 'pageSize'>;
+type Transformer<TableData = Record<string, unknown>> = (
+  apiData: ApiData<TableData>
+) => TransformedTableData<TableData>;
 
-/**
- * 表格接口的请求参数
- */
-type TableApiParams = Record<string, unknown> & TablePaginationParams;
-
-/**
- * 表格接口的请求数据
- */
-type TableApiData<T = InternalRowData> = {
-  data: T[];
-  pageNum: number;
-  pageSize: number;
-  total: number;
+type TableParams<TableData = Record<string, unknown>, Params = ApiParams<TableData>> = {
+  apiFn: ApiFn<TableData, Params>;
+  apiParams: Params;
+  columns: DataTableColumn<TableData>[];
+  transformer: Transformer<TableData>;
+  pagination?: PaginationProps;
 };
 
-/**
- * 表格接口的请求函数
- */
-type TableApiFn<P extends TableApiParams, T extends InternalRowData> = (
-  params: P
-) => Promise<Service.SuccessResult<TableApiData<T>>>;
-
-export function useNaiveTable<TableData extends InternalRowData, P extends TableApiParams>(
-  apiFn: TableApiFn<P, TableData>,
-  apiParams: P,
-  columns: MaybeComputedRef<DataTableColumn<TableData>[]>
+export function useTable<TableData extends Record<string, unknown>, Params extends ApiParams<TableData>>(
+  params: TableParams<TableData, Params>,
+  immediate = true
 ) {
   const { loading, startLoading, endLoading, empty, setEmpty } = useLoadingEmpty();
 
-  const tableData: Ref<TableData[]> = ref([]);
+  const data: Ref<TableData[]> = ref([]);
 
-  async function getTableData(paginationParams?: TablePaginationParams) {
-    startLoading();
-
-    const params = { ...apiParams, ...paginationParams };
-
-    const { data } = await apiFn(params);
-    if (data) {
-      tableData.value = data.data;
-
-      setEmpty(data.data.length === 0);
-    }
-    endLoading();
+  function updateData(update: TableData[]) {
+    data.value = update;
   }
 
-  const pagination: PaginationProps = reactive({
+  const columns = ref(params.columns) as Ref<DataTableColumn<TableData>[]>;
+
+  const pagination = reactive({
     page: 1,
     pageSize: 10,
     showSizePicker: true,
@@ -75,15 +87,47 @@ export function useNaiveTable<TableData extends InternalRowData, P extends Table
     onUpdatePageSize: (pageSize: number) => {
       pagination.pageSize = pageSize;
       pagination.page = 1;
+    },
+    ...params.pagination
+  }) as PaginationProps;
+
+  function updatePagination(update: Partial<PaginationProps>) {
+    Object.assign(pagination, update);
+  }
+
+  async function getData() {
+    const apiParams: Params = { ...params.apiParams };
+    apiParams.page = apiParams.page || pagination.page;
+    apiParams.pageSize = apiParams.pageSize || pagination.pageSize;
+
+    startLoading();
+
+    const { data: apiData } = await params.apiFn(apiParams);
+
+    if (apiData) {
+      const transformedData = params.transformer(apiData);
+
+      updateData(transformedData.data);
+
+      setEmpty(transformedData.data.length === 0);
+
+      updatePagination({ page: transformedData.pageNum, pageSize: transformedData.pageSize });
     }
-  });
+
+    endLoading();
+  }
+
+  if (immediate) {
+    getData();
+  }
 
   return {
-    tableData,
+    data,
     columns,
     loading,
     empty,
     pagination,
-    start: getTableData
+    getData,
+    updatePagination
   };
 }

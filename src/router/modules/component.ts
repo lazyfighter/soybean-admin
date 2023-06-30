@@ -9,6 +9,7 @@ const component: AuthRoute.Route = {
       component: 'self',
       meta: {
         title: '按钮',
+        i18nTitle: 'message.routes.component.button',
         requiresAuth: true,
         icon: 'mdi:button-cursor'
       }
@@ -19,6 +20,7 @@ const component: AuthRoute.Route = {
       component: 'self',
       meta: {
         title: '卡片',
+        i18nTitle: 'message.routes.component.card',
         requiresAuth: true,
         icon: 'mdi:card-outline'
       }
@@ -29,55 +31,15 @@ const component: AuthRoute.Route = {
       component: 'self',
       meta: {
         title: '表格',
+        i18nTitle: 'message.routes.component.table',
         requiresAuth: true,
         icon: 'mdi:table-large'
-      }
-    },
-    {
-      name: 'component_tree',
-      path: '/component/tree',
-      component: 'multi',
-      children: [
-        {
-          name: 'component_tree_tree-basic',
-          path: '/component/tree/tree-basic',
-          component: 'self',
-          meta: {
-            title: '基础树',
-            requiresAuth: true,
-            icon: 'fluent:tree-deciduous-20-regular'
-          }
-        },
-        {
-          name: 'component_tree_tree-custom',
-          path: '/component/tree/tree-custom',
-          component: 'self',
-          meta: {
-            title: '自定义树',
-            requiresAuth: true,
-            icon: 'fluent:tree-deciduous-20-filled'
-          }
-        },
-        {
-          name: 'component_tree_tree-functions',
-          path: '/component/tree/tree-functions',
-          component: 'self',
-          meta: {
-            title: '函数示例',
-            requiresAuth: true,
-            icon: 'fluent:tree-evergreen-20-filled'
-          }
-        }
-      ],
-      meta: {
-        title: '树',
-        requiresAuth: true,
-        icon: 'carbon:tree-view-alt'
       }
     }
   ],
   meta: {
     title: '组件示例',
+    i18nTitle: 'message.routes.component._value',
     icon: 'cib:app-store',
     order: 3
   }
